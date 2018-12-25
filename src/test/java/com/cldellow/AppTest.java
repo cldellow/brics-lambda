@@ -9,21 +9,25 @@ public class AppTest
     @Test
     public void noMatches()
     {
-        String rv = (new App()).match("haystack", "needle", null);
-        assertEquals("0\t", rv);
+        Response rv = (new App()).match("haystack", "needle", null);
+        assertEquals(0, rv.getHits().length);
+        assertEquals(null, rv.getError());
     }
 
     @Test
     public void someMatches()
     {
-        String rv = (new App()).match("Donald", "[Dd]", null);
-        assertEquals("2\tD", rv);
+        Response rv = (new App()).match("Donald", "[Dd]", null);
+        assertEquals(2, rv.hits.length);
+        assertEquals("D", rv.hits[0]);
+        assertEquals("d", rv.hits[1]);
     }
 
     @Test
     public void badRegex()
     {
-        String rv = (new App()).match("Donald", "(", null);
-        assertEquals("-1\t", rv);
+        Response rv = (new App()).match("Donald", "(", null);
+        assertEquals(null, rv.hits);
+        assertEquals("unexpected end-of-string", rv.error);
     }
 }
