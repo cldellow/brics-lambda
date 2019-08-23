@@ -28,7 +28,10 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
             hits.add(m.group());
         }
 
-        String[] strings = Arrays.copyOf(hits.toArray(), hits.size(), String[].class);
+        int len = hits.size();
+        if(len > 10)
+            len = 10;
+        String[] strings = Arrays.copyOf(hits.toArray(), len, String[].class);
         return new Response(strings, null);
     }
 
@@ -39,7 +42,8 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         Response r = match(request.get("haystack").toString(), request.get("needle").toString(), context);
 
         HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("Content-Type", "text/plain");
+        headers.put("Content-Type", "application/json");
+        headers.put("Access-Control-Allow-Origin", "*");
 
         APIGatewayProxyResponseEvent gwResponse = new APIGatewayProxyResponseEvent();
 

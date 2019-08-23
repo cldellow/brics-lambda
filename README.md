@@ -6,6 +6,8 @@ An AWS lambda deployment to validate and test brics.dk automata.
 
 `./go` builds the code, uploads to S3 and refreshes the Lambda.
 
+After building the stack, go to the API Gateway and enable CORS for the stage.
+
 ## Usage
 
 ```
