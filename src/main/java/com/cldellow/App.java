@@ -1,12 +1,16 @@
 package com.cldellow;
 
 import java.util.ArrayList;
+import com.github.openjson.*;
 import java.util.Arrays;
+import java.util.HashMap;
 import dk.brics.automaton.*;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 
-public class App implements RequestHandler<Request, Response>
+public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>
 {
     public Response match(String haystack, String needle, Context context) {
         ArrayList<String> hits = new ArrayList<String>();
@@ -28,8 +32,35 @@ public class App implements RequestHandler<Request, Response>
         return new Response(strings, null);
     }
 
-    public Response handleRequest(Request request, Context context) {
-        return match(request.getHaystack(), request.getNeedle(), context);
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent gwRequest, Context context) {
+
+        System.out.println(gwRequest.getBody());
+        JSONObject request = new JSONObject(gwRequest.getBody());
+        Response r = match(request.get("haystack").toString(), request.get("needle").toString(), context);
+
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put("Content-Type", "text/plain");
+
+        APIGatewayProxyResponseEvent gwResponse = new APIGatewayProxyResponseEvent();
+
+        gwResponse.withStatusCode(200);
+        gwResponse.withHeaders(headers);
+
+
+        JSONObject body = new JSONObject();
+        if(r.error != null) {
+            gwResponse.withStatusCode(400);
+            body.put("error", r.error);
+        } else {
+            JSONArray hits = new JSONArray();
+            for(int i = 0; i < r.hits.length; i++) {
+                hits.put(r.hits[i]);
+            }
+            body.put("hits", hits);
+        }
+
+        gwResponse.withBody(body.toString());
+        return gwResponse;
     }
 
     public static void main( String[] args )

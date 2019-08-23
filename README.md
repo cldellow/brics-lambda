@@ -2,4 +2,13 @@
 
 An AWS lambda deployment to validate and test brics.dk automata.
 
-Build uberjar: `mvn clean compile assembly:single`
+`aws cloudformation --region us-east-1 create-stack --stack-name brics --template-body file://stack.yaml --capabilities CAPABILITY_IAM` creates the stack.
+
+`./go` builds the code, uploads to S3 and refreshes the Lambda.
+
+## Usage
+
+```
+$ curl https://us-east-1.brics.code402.com/test` -d '{"needle": "[0-9]+", "haystack": "abc123 def456"}'
+{"hits":["123","456"]}
+```
