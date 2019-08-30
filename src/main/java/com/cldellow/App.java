@@ -16,7 +16,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         ArrayList<String> hits = new ArrayList<String>();
         RegExp r;
         try {
-            r = new RegExp(needle);
+            r = new RegExp(needle, RegExp.NONE);
         } catch (IllegalArgumentException iae) {
             return new Response(null, iae.getMessage());
         }
